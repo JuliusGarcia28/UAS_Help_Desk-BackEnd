@@ -6,8 +6,16 @@ import random
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.CharField(max_length=15)
+    role = models.CharField(max_length=15, null=True)
     status = models.SmallIntegerField(default=0)
+
+    department = models.ForeignKey(
+        'Department',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='users'
+    )
 
     def is_active_user(self):
         return self.status == 1
@@ -19,5 +27,5 @@ class User(AbstractUser):
 class Department(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50)
-    location = models.CharField(max_length=100)
+    description = models.CharField(max_length=100, null=True, blank=True)
     status = models.SmallIntegerField(default=1)
