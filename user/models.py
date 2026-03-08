@@ -4,9 +4,15 @@ from django.conf import settings
 import uuid
 import random
 
+ROLE_CHOICES = (
+    ('admin', 'Admin'),
+    ('technician', 'Technician'),
+    ('client', 'Client'),
+)
+
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.CharField(max_length=15, null=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     status = models.SmallIntegerField(default=0)
 
     department = models.ForeignKey(
