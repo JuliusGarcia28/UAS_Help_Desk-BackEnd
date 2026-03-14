@@ -3,46 +3,120 @@ from django.contrib.auth.admin import UserAdmin
 from .models import User, Department
 
 
-class CustomUserAdmin(UserAdmin):
-    model = User
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
 
     list_display = (
-        'username',
-        'email',
-        'role',
-        'status',
-        'department',
-        'is_staff',
-        'is_superuser'
+        "name",
+        "description",
+        "status"
+    )
+
+    search_fields = (
+        "name",
     )
 
     list_filter = (
-        'role',
-        'status',
-        'department',
-        'is_staff'
+        "status",
     )
 
-    fieldsets = UserAdmin.fieldsets + (
-        ("Información adicional", {
+    ordering = ("name",)
+
+    list_per_page = 20
+
+
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+
+    model = User
+
+    list_display = (
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+        "role",
+        "department",
+        "status",
+        "is_staff"
+    )
+
+    list_filter = (
+        "role",
+        "status",
+        "department",
+        "is_staff"
+    )
+
+    search_fields = (
+        "username",
+        "email",
+        "first_name",
+        "last_name"
+    )
+
+    ordering = ("username",)
+
+    list_per_page = 20
+
+    fieldsets = (
+
+        ("Información de acceso", {
+            "fields": ("username", "password")
+        }),
+
+        ("Información personal", {
             "fields": (
-                "role",
-                "status",
-                "department"
+                "first_name",
+                "last_name",
+                "email"
             )
         }),
-    )
 
-    add_fieldsets = UserAdmin.add_fieldsets + (
-        ("Información adicional", {
+        ("Información organizacional", {
             "fields": (
                 "role",
-                "status",
-                "department"
+                "department",
+                "status"
             )
         }),
+
+        ("Permisos", {
+            "fields": (
+                "is_active",
+                "is_staff",
+                "is_superuser",
+                "groups",
+                "user_permissions"
+            )
+        }),
+
+        ("Fechas importantes", {
+            "fields": (
+                "last_login",
+                "date_joined"
+            )
+        }),
+
     )
 
+    add_fieldsets = (
 
-admin.site.register(User, CustomUserAdmin)
-admin.site.register(Department)
+        (None, {
+            "classes": ("wide",),
+            "fields": (
+                "username",
+                "email",
+                "first_name",
+                "last_name",
+                "role",
+                "department",
+                "status",
+                "password1",
+                "password2",
+                "is_staff",
+                "is_active"
+            ),
+        }),
+
+    )

@@ -1,23 +1,47 @@
 from rest_framework import serializers
-from .models import User
+from django.contrib.auth import authenticate
+from .models import User, Department
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name", "description", "status"]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    department = DepartmentSerializer(read_only=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "role",
+            "status",
+            "department"
+        ]
 
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password'],
-            role='teacher',  # rol por defecto
-            status=1
-        )
 
-        return user
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+
+        username = data.get("username")
+        password = data.get("password")
+
+        user = authenticate(username=username, password=password)
+
+        if not user:
+            raise serializers.ValidationError("Credenciales inválidas")
+
+        if user.status != 1:
+            raise serializers.ValidationError("Usuario inactivo")
+
+        data["user"] = user
+        return data

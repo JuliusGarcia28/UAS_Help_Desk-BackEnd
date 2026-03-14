@@ -11,27 +11,57 @@ ROLE_CHOICES = (
 )
 
 class User(AbstractUser):
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    status = models.SmallIntegerField(default=0)
+
+    role = models.CharField(
+        "Rol",
+        max_length=20,
+        choices=ROLE_CHOICES
+    )
+
+    status = models.SmallIntegerField(
+        "Estado",
+        default=0
+    )
 
     department = models.ForeignKey(
         'Department',
+        verbose_name="Departamento",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='users'
     )
 
-    def is_active_user(self):
-        return self.status == 1
-
-    def deactivate(self):
-        self.status = 0
-        self.save()
+    class Meta:
+        verbose_name = "Usuario"
+        verbose_name_plural = "Usuarios"
 
 class Department(models.Model):
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=50)
-    description = models.CharField(max_length=100, null=True, blank=True)
-    status = models.SmallIntegerField(default=1)
+
+    name = models.CharField(
+        "Nombre",
+        max_length=50
+    )
+
+    description = models.CharField(
+        "Descripción",
+        max_length=100,
+        null=True,
+        blank=True
+    )
+
+    status = models.SmallIntegerField(
+        "Estado",
+        default=1
+    )
+
+    class Meta:
+        verbose_name = "Departamento"
+        verbose_name_plural = "Departamentos"
+
+    def __str__(self):
+        return self.name

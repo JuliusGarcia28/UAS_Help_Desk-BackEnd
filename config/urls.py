@@ -5,6 +5,10 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+admin.site.site_header = "Panel de Administración HelpDesk"
+admin.site.site_title = "HelpDesk UAS"
+admin.site.index_title = "Gestión del Sistema HelpDesk"
+
 urlpatterns = [
     # Django Admin
     path('admin/', admin.site.urls),
@@ -13,4 +17,6 @@ urlpatterns = [
      path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # Usuario
     path('', include('user.urls')),
+    # Equipo de computo (Inventario)
+    path('', include('asset.urls')),
 ]
