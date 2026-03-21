@@ -20,7 +20,7 @@ class Asset(models.Model):
 
     model = models.CharField("Modelo", max_length=50)
 
-    serial_number = models.CharField("Número de serie", max_length=50)
+    serial_number = models.CharField("Número de serie", max_length=50, unique=True)
 
     operative_system = models.CharField(
         "Sistema operativo",
