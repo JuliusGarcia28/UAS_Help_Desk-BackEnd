@@ -23,3 +23,6 @@ class AgentAssetSerializer(serializers.ModelSerializer):
             "ram",
             "ip_address",
         ]
+        extra_kwargs = {
+            "serial_number": {"required": True}
+        }

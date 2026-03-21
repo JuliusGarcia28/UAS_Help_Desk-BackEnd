@@ -16,20 +16,22 @@ class AssetViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 class AgentAssetDetail(APIView):
+
     def get(self, request, serial):
+
         asset = Asset.objects.filter(serial_number=serial).first()
 
         if not asset:
             return Response(
-                {"exist": False},
+                {"exists": False},
                 status=status.HTTP_200_OK
             )
-        
-        serializer = AssetSerializer(Asset)
+
+        serializer = AgentAssetSerializer(asset)
 
         return Response(
             {
-                "exist": True,
+                "exists": True,
                 "data": serializer.data
             },
             status=status.HTTP_200_OK
@@ -41,7 +43,7 @@ class AgentRegisterAsset(APIView):
 
     def post(self, request):
 
-        serializer = AssetSerializer(data=request.data)
+        serializer = AgentAssetSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
@@ -49,9 +51,11 @@ class AgentRegisterAsset(APIView):
                 {"message": "Inventario registrado"},
                 status=status.HTTP_201_CREATED
             )
-
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
+    
+class AgentUpdateAsset(APIView):
     def patch(self, request, serial):
 
         asset = Asset.objects.filter(serial_number=serial).first()
@@ -62,7 +66,7 @@ class AgentRegisterAsset(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = AssetSerializer(asset, data=request.data, partial=True)
+        serializer = AgentAssetSerializer(asset, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
