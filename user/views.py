@@ -3,6 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.mail import send_mail
+from django.urls import reverse
+from django.conf import settings
+from .models import User
+from .utils import token_generator
 
 from .serializers import LoginSerializer, UserSerializer
 
@@ -58,6 +63,50 @@ class Logout(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+class RequestPasswordReset(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+
+        user = User.objects.filter(email=email).first()
+
+        if not user:
+            return Response({"message": "Si el correo existe, recibirás instrucciones"})
+
+        token = token_generator.make_token(user)
+
+        reset_url = f"http://localhost:4200/reset-password?uid={user.id}&token={token}"
+
+        send_mail(
+            "Recuperación de contraseña",
+            f"Usa este enlace para cambiar tu contraseña:\n{reset_url}",
+            settings.EMAIL_HOST_USER,
+            [email]
+        )
+
+        return Response({"message": "Correo enviado"})
+    
+class ResetPassword(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        uid = request.data.get("uid")
+        token = request.data.get("token")
+        password = request.data.get("password")
+
+        user = User.objects.filter(id=uid).first()
+
+        if not user:
+            return Response({"error": "Usuario inválido"}, status=400)
+
+        if not token_generator.check_token(user, token):
+            return Response({"error": "Token inválido"}, status=400)
+
+        user.set_password(password)
+        user.save()
+
+        return Response({"message": "Contraseña actualizada"})
 
 class UserView(APIView):
     permission_classes = [IsAuthenticated]
