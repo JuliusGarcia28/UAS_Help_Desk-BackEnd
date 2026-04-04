@@ -10,20 +10,17 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    department = DepartmentSerializer(read_only=True)
-
     class Meta:
         model = User
-        fields = [
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-            "role",
-            "status",
-            "department"
-        ]
+        fields = "__all__"
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        user = User(**validated_data)
+        if password:
+            user.set_password(password)
+        user.save()
+        return user
 
 
 class LoginSerializer(serializers.Serializer):
@@ -32,12 +29,15 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, data):
 
-        email = data.get("email")
+        email = data.get("email", "").strip().lower()
         password = data.get("password")
 
-        user = authenticate(email=email, password=password)
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Credenciales inválidas")
 
-        if not user:
+        if not user.check_password(password):
             raise serializers.ValidationError("Credenciales inválidas")
 
         if user.status != 1:
