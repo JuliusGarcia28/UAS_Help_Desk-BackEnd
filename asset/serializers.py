@@ -1,8 +1,18 @@
 from rest_framework import serializers
 from .models import Asset
-
+from user.serializers import UserSerializer
+from user.models import User
 
 class AssetSerializer(serializers.ModelSerializer):
+    responsible = UserSerializer(read_only=True)
+
+    responsible_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='responsible',
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = Asset

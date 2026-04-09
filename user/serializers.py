@@ -10,6 +10,17 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # Mostrar Objeto completo
+    department = DepartmentSerializer(read_only=True)
+    
+    department_id = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(),
+        source='department',
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = User
         fields = "__all__"

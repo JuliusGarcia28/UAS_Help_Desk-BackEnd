@@ -6,10 +6,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.conf import settings
-from .models import User
+from .models import User, Department
 from .utils import token_generator
 
-from .serializers import LoginSerializer, UserSerializer
+from .serializers import LoginSerializer, UserSerializer, DepartmentSerializer
 
 
 class LoginView(APIView):
@@ -120,4 +120,9 @@ class UserView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
     permission_classes = [IsAuthenticated]
