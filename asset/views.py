@@ -2,18 +2,48 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import action
 
 from .models import Asset, AssetHistory
 from .serializers import AssetSerializer, AgentAssetSerializer
 
 
-class AssetViewSet(viewsets.ModelViewSet):
+"""class AssetViewSet(viewsets.ModelViewSet):
 
     queryset = Asset.objects.all().order_by("-created_at")
 
     serializer_class = AssetSerializer
 
+    permission_classes = [IsAuthenticated]"""
+    
+class AssetViewSet(viewsets.ModelViewSet):
+
+    queryset = Asset.objects.all().order_by("-created_at")
+    serializer_class = AssetSerializer
     permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=["get"])
+    def history(self, request, pk=None):
+
+        history = AssetHistory.objects.filter(asset_id=pk).order_by("-snapshot_date")
+
+        data = [
+            {
+                "hostname": h.hostname,
+                "serial_number": h.serial_number,
+                "cpu": h.cpu,
+                "ram": h.ram,
+                "ip_address": h.ip_address,
+                "status": h.status,
+                "user_email": h.user_email,
+                "department_name": h.department_name,
+                "snapshot_date": h.snapshot_date,
+                "change_reason": h.change_reason
+            }
+            for h in history
+        ]
+
+        return Response(data)
 
 class AgentAssetDetail(APIView):
 
