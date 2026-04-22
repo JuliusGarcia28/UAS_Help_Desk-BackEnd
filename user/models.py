@@ -58,6 +58,15 @@ class Department(models.Model):
         "Estado",
         default=1
     )
+    
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='children',
+        verbose_name="Departamento padre"
+    )
 
     class Meta:
         verbose_name = "Departamento"

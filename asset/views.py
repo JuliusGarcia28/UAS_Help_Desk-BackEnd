@@ -6,15 +6,6 @@ from rest_framework.decorators import action
 
 from .models import Asset, AssetHistory
 from .serializers import AssetSerializer, AgentAssetSerializer
-
-
-"""class AssetViewSet(viewsets.ModelViewSet):
-
-    queryset = Asset.objects.all().order_by("-created_at")
-
-    serializer_class = AssetSerializer
-
-    permission_classes = [IsAuthenticated]"""
     
 class AssetViewSet(viewsets.ModelViewSet):
 

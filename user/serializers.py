@@ -4,9 +4,20 @@ from .models import User, Department
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
+    parent = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(),
+        required=False,
+        allow_null=True
+    )
+    
     class Meta:
         model = Department
-        fields = ["id", "name", "description", "status"]
+        fields = ["id", "name", "description", "status", "parent"]
+        
+    def validate_parent(self, value):
+        if self.instance and value == self.instance:
+            raise serializers.ValidationError("Un departamento no puede depender de sí mismo")
+        return value
 
 
 class UserSerializer(serializers.ModelSerializer):
