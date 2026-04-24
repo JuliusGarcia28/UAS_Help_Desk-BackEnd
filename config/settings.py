@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'user',
     'asset.apps.AssetConfig',
-    'ticket',
+    'ticket.apps.TicketConfig',
     'corsheaders'
 ]
 
