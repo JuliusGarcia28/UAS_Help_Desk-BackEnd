@@ -10,7 +10,7 @@ STATUS_CHOICES = (
 
 class Ticket(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    description = models.CharField(max_length=100)
+    description = models.TextField()
     priority = models.PositiveSmallIntegerField(default=2)
     finished_at = models.DateTimeField(null=True, blank=True)
     resolution_time = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -50,7 +50,7 @@ class TicketHistory(models.Model):
     # estado del ticket en ese momento
     status = models.SmallIntegerField()
 
-    # prioridad opcional (recomendado)
+    # prioridad
     priority = models.PositiveSmallIntegerField()
 
     # quién hizo el cambio

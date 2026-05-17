@@ -21,4 +21,6 @@ urlpatterns = [
     path('', include('asset.urls')),
     # Tickets
     path('', include('ticket.urls')),
+    # Chat de soporte
+    path('', include('ai_support.urls')),
 ]

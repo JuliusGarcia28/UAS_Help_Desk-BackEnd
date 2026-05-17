@@ -3,6 +3,8 @@ from pathlib import Path
 #import dj_database_url
 import os
 
+GEMINI_API_KEY = "AIzaSyAtszYTJURxHHnPhkRaMWDh4_UFc4ZdcVA"
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -58,6 +60,7 @@ INSTALLED_APPS = [
     'user',
     'asset.apps.AssetConfig',
     'ticket.apps.TicketConfig',
+    'ai_support',
     'corsheaders'
 ]
 
