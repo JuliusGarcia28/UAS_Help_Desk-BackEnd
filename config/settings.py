@@ -121,7 +121,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'help_desk',     # Nombre de la BD en MySQL
         'USER': 'root',          # Usuario de MySQL
-        'PASSWORD': 'root97',    # Contraseña variable
+        'PASSWORD': 'root',    # Contraseña variable
         'HOST': 'localhost',     # IP del servidor (usar 'localhost' si es local)
         'PORT': '3306',          # Puerto de MySQL (por defecto es 3306)
         'OPTIONS': {

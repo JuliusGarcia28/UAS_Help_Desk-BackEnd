@@ -9,7 +9,42 @@ from django.conf import settings
 from .models import User, Department
 from .utils import token_generator
 
-from .serializers import LoginSerializer, UserSerializer, DepartmentSerializer
+from .serializers import LoginSerializer, UserSerializer, DepartmentSerializer, RegisterSerializer
+
+class ChangePassword(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        new_password = request.data.get('password')
+
+        if not new_password or len(new_password) < 6:
+            return Response({'error': 'Password inválida (mínimo 6 caracteres)'}, status=400)
+
+        user = request.user
+        user.set_password(new_password)
+        user.must_change_password = False
+        user.save()
+
+        return Response({'message': 'Contraseña actualizada'})
+
+
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(
+                {
+                    'message': 'Cuenta creada correctamente',
+                    'user': UserSerializer(user).data,
+                },
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):

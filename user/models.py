@@ -25,6 +25,11 @@ class User(AbstractUser):
         default=0
     )
 
+    must_change_password = models.BooleanField(
+        "Cambiar contraseña al entrar",
+        default=False
+    )
+
     department = models.ForeignKey(
         'Department',
         verbose_name="Departamento",

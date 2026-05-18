@@ -1,0 +1,14 @@
+{% extends "admin/change_list.html" %}
+
+{% block search %}
+    <div id="toolbar">
+        <form id="changelist-search" method="get">
+            <div>
+                <label for="searchbar"><img src="/static/admin/img/search.svg" alt="Search"></label>
+                <input type="text" size="40" name="q" value="{{ cl.query }}" id="searchbar" autofocus placeholder="Search by username, email, first name or last name">
+                <input type="submit" value="Search">
+            </div>
+        </form>
+        <a href="{% url 'admin:user_create_technician' %}" class="button">+ Crear Técnico</a>
+    </div>
+{% endblock %}
