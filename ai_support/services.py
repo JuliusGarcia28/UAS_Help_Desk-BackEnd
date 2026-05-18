@@ -46,7 +46,7 @@ def generate_ai_response(user, asset, problem):
     INSTRUCCIONES:
 
     1. Analiza el problema.
-    2. Da pasos claros y ordenados para resolverlo.
+    2. Da pasos claros y ordenados para resolverlo y de la manera mas clara y entendible para el usuario.
     3. Si el problema parece crítico indícalo.
     4. Genera un posible diagnóstico técnico.
     5. Responde SIEMPRE en español.

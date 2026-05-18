@@ -92,32 +92,7 @@ class AISupportEscalateView(APIView):
             status=404
           )
 
-        ticket_description = f"""
-        ==============================
-        INCIDENCIA REPORTADA
-        ==============================
-
-        Usuario:
-        {request.user.first_name} {request.user.last_name}
-
-        Correo:
-        {request.user.email}
-
-        Problema reportado:
-        {session.problem_description}
-
-        ==============================
-        DIAGNÓSTICO IA
-        ==============================
-
-        {session.diagnosis}
-
-        ==============================
-        RESPUESTA IA
-        ==============================
-
-        {session.ai_response}
-        """
+        ticket_description = f""" { session.problem_description }"""
 
         ticket = Ticket.objects.create(
           description=ticket_description,

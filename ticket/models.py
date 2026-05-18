@@ -63,26 +63,3 @@ class TicketHistory(models.Model):
 
     class Meta:
         ordering = ["-change_date"]
-    
-class support_session_ai(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    problem_description = models.CharField(max_length=100)
-    ai_response = models.CharField(max_length=100, null=True)
-    suggestions = models.CharField(max_length=100, null=True)   
-    user_attemp = models.BooleanField(default=False)
-    solved = models.BooleanField(default=False)
-    start_at = models.DateTimeField(auto_now_add=True) 
-
-    cliente = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='ai_sessions'
-    )
-
-    ticket = models.OneToOneField(
-        'Ticket',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name='ai_session'
-    )
