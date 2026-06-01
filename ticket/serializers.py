@@ -1,23 +1,80 @@
 from rest_framework import serializers
-from .models import Ticket, Ticket_Detail, TicketHistory
 
+from .models import (
+    Ticket,
+    TicketHistory
+)
+
+from user.models import User
+
+
+# =========================
+# USER SIMPLE SERIALIZER
+# =========================
+
+class TicketUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "role",
+            "status"
+        ]
+
+
+# =========================
+# TICKET
+# =========================
 
 class TicketSerializer(serializers.ModelSerializer):
 
+    client = TicketUserSerializer(
+        source="cliente",
+        read_only=True
+    )
+
+    technician_data = TicketUserSerializer(
+        source="technician",
+        read_only=True
+    )
+
     class Meta:
+
         model = Ticket
-        fields = "__all__"
 
+        fields = [
+            "id",
+            "description",
+            "category",
+            "diagnosis",
+            "resolution",
+            "priority",
+            "status",
+            "source",
+            "asset",
+            "cliente",
+            "technician",
+            "client",
+            "technician_data",
+            "created_at",
+            "updated_at",
+            "finished_at",
+            "resolution_time"
+        ]
 
-class TicketDetailSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Ticket_Detail
-        fields = "__all__"
-
+# =========================
+# TICKET HISTORY
+# =========================
 
 class TicketHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TicketHistory
+
         fields = "__all__"

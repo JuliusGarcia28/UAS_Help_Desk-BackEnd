@@ -2,6 +2,7 @@ from httpx import request
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 from .services import generate_ai_response
 from .models import (
@@ -48,9 +49,10 @@ class AISupportChatView(APIView):
             asset,
             problem
         )
-
+        
         session = SupportSessionAI.objects.create(
             cliente=request.user,
+            asset=asset,
             problem_description=problem,
             ai_response=ai_data["response"],
             detected_priority=ai_data["priority"],
@@ -73,7 +75,38 @@ class AISupportChatView(APIView):
         serializer = SupportSessionSerializer(session)
 
         return Response(serializer.data)
+    
+class AISupportSessionListView(ListAPIView):
 
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = SupportSessionSerializer
+
+    def get_queryset(self):
+
+        return SupportSessionAI.objects.filter(
+            cliente=self.request.user
+        ).prefetch_related(
+            "messages"
+        ).order_by("-created_at")
+        
+class AISupportSessionDetailView(
+    RetrieveAPIView
+):
+
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = SupportSessionSerializer
+
+    lookup_field = "id"
+
+    def get_queryset(self):
+
+        return SupportSessionAI.objects.filter(
+            cliente=self.request.user
+        ).prefetch_related(
+            "messages"
+        )
 
 class AISupportEscalateView(APIView):
 
@@ -93,12 +126,16 @@ class AISupportEscalateView(APIView):
           )
 
         ticket_description = f""" { session.problem_description }"""
-
+        
         ticket = Ticket.objects.create(
-          description=ticket_description,
-          priority=session.detected_priority,
-          cliente=request.user,
-          status=1
+            description=session.problem_description,
+            category=session.category,
+            diagnosis=session.diagnosis,
+            priority=session.detected_priority,
+            cliente=request.user,
+            source="ai",
+            asset=session.asset,
+            status=1
         )
 
         session.ticket = ticket
