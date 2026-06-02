@@ -3,6 +3,7 @@ from django.conf import settings
 from asset.models import Asset
 import uuid
 
+
 STATUS_CHOICES = (
     (1, "Abierto"),
     (2, "En proceso"),
@@ -29,6 +30,13 @@ class Ticket(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False
+    )
+
+    code = models.CharField(
+        max_length=20,
+        unique=True,
+        blank=True,
+        null=True
     )
 
     description = models.TextField()
@@ -105,9 +113,29 @@ class Ticket(models.Model):
         blank=True
     )
 
+    def save(self, *args, **kwargs):
+
+        creating = self._state.adding
+
+        super().save(*args, **kwargs)
+
+        if creating and not self.code:
+
+            ticket_number = Ticket.objects.count()
+
+            self.code = f"TK-{ticket_number:03d}"
+
+            Ticket.objects.filter(
+                pk=self.pk
+            ).update(
+                code=self.code
+            )
+
     def __str__(self):
-        return f"{self.id}"
+
+        return self.code or str(self.id)
     
+
 class TicketHistory(models.Model):
 
     id = models.UUIDField(

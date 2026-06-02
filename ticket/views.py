@@ -13,8 +13,6 @@ from .serializers import (
     TicketHistorySerializer
 )
 
-from .utils import create_ticket_snapshot
-
 
 class TicketViewSet(viewsets.ModelViewSet):
 
@@ -27,37 +25,48 @@ class TicketViewSet(viewsets.ModelViewSet):
         "technician",
         "asset"
     )
-    
+
+    def get_queryset(self):
+
+        user = self.request.user
+
+        queryset = Ticket.objects.select_related(
+            "cliente",
+            "technician",
+            "asset"
+        )
+
+        # ADMIN
+        if user.role == "admin":
+            return queryset
+
+        # CLIENTE
+        if user.role == "client":
+            return queryset.filter(
+                cliente=user
+            )
+
+        # TECNICO
+        if user.role == "technician":
+            return queryset.filter(
+                technician=user
+            )
+
+        return queryset.none()
+
     def perform_create(self, serializer):
 
         serializer.save(
             cliente=self.request.user
         )
 
-    """def perform_update(self, serializer):
-
-        old_ticket = self.get_object()
-
-        updated_ticket = serializer.save()
-
-        # Detectar cambios
-        if (
-            old_ticket.status != updated_ticket.status
-            or
-            old_ticket.priority != updated_ticket.priority
-        ):
-
-            create_ticket_snapshot(
-                old_ticket,
-                user=self.request.user,
-                reason="update"
-            )"""
-
     @action(detail=True, methods=["get"])
     def history(self, request, pk=None):
 
+        ticket = self.get_object()
+
         history = TicketHistory.objects.filter(
-            ticket_id=pk
+           ticket=ticket
         )
 
         serializer = TicketHistorySerializer(

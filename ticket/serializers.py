@@ -50,6 +50,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
         fields = [
             "id",
+            "code",
             "description",
             "category",
             "diagnosis",
