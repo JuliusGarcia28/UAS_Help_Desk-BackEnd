@@ -12,7 +12,11 @@ ROLE_CHOICES = (
 
 class User(AbstractUser):
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
 
     role = models.CharField(
         "Rol",
@@ -23,6 +27,10 @@ class User(AbstractUser):
     status = models.SmallIntegerField(
         "Estado",
         default=0
+    )
+
+    email_verified = models.BooleanField(
+        default=False
     )
 
     department = models.ForeignKey(
@@ -74,3 +82,31 @@ class Department(models.Model):
 
     def __str__(self):
         return self.name
+    
+class AuditLog(models.Model):
+
+    ACTIONS = (
+        ("create","Crear"),
+        ("update","Actualizar"),
+        ("delete","Eliminar"),
+        ("login","Login")
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    action = models.CharField(
+        max_length=20,
+        choices=ACTIONS
+    )
+
+    description = models.TextField()
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ["-created_at"]

@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import User, Department
+from .models import AuditLog, User, Department
+
+from .email_service import send_activation_email
+from django.conf import settings
+from .utils import token_generator
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -15,9 +19,29 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "description", "status", "parent"]
         
     def validate_parent(self, value):
-        if self.instance and value == self.instance:
-            raise serializers.ValidationError("Un departamento no puede depender de sí mismo")
+
+      if not self.instance:
         return value
+
+      if value == self.instance:
+
+        raise serializers.ValidationError(
+            "Un departamento no puede depender de sí mismo"
+        )
+
+      parent = value
+
+      while parent:
+
+        if parent == self.instance:
+
+            raise serializers.ValidationError(
+                "Dependencia circular detectada"
+            )
+
+        parent = parent.parent
+
+      return value
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -34,15 +58,88 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = "__all__"
+
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "role",
+            "status",
+            "email_verified",
+            "department",
+            "department_id"
+        ]
+
+        extra_kwargs = {
+            "username": {"required": True},
+            "email": {"required": True}
+        }
 
     def create(self, validated_data):
-        password = validated_data.pop('password', None)
-        user = User(**validated_data)
-        if password:
-            user.set_password(password)
-        user.save()
-        return user
+
+      validated_data.pop("password", None)
+
+      user = User(**validated_data)
+
+      user.status = 0
+      user.email_verified = False
+
+      user.set_unusable_password()
+
+      user.save()
+
+      token = token_generator.make_token(user)
+
+      activation_url = (
+        f"{settings.FRONTEND_URL}/activate-account"
+        f"?uid={user.id}&token={token}"
+      )
+
+      send_activation_email(
+       user=user,
+       activation_url=activation_url
+      )
+      
+      AuditLog.objects.create(
+        user=user,
+        action="create",
+        description="Usuario creado"
+      )
+
+      return user
+    
+    def update(self, instance, validated_data):
+
+      request = self.context.get("request")
+
+      if request:
+
+        if (
+            request.user.role != "admin"
+            and "role" in validated_data
+        ):
+            validated_data.pop("role")
+
+      return super().update(
+        instance,
+        validated_data
+      )
+    
+    def validate_email(self, value):
+
+        qs = User.objects.filter(email__iexact=value)
+
+        if self.instance:
+          qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+          raise serializers.ValidationError(
+            "Ya existe un usuario con este correo"
+          )
+          
+        return value
 
 
 class LoginSerializer(serializers.Serializer):
@@ -51,19 +148,65 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, data):
 
-        email = data.get("email", "").strip().lower()
-        password = data.get("password")
+      email = data.get("email", "").strip().lower()
 
-        try:
-            user = User.objects.get(email__iexact=email)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("Credenciales inválidas")
+      password = data.get("password")
 
-        if not user.check_password(password):
-            raise serializers.ValidationError("Credenciales inválidas")
+      try:
 
-        if user.status != 1:
-            raise serializers.ValidationError("Usuario inactivo")
+        user = User.objects.get(
+            email__iexact=email
+        )
 
-        data["user"] = user
-        return data
+      except User.DoesNotExist:
+
+        raise serializers.ValidationError(
+            "Credenciales inválidas"
+        )
+
+      user = authenticate(
+        username=user.username,
+        password=password
+      )
+
+      if not user:
+
+        raise serializers.ValidationError(
+            "Credenciales inválidas"
+        )
+
+      if not user.email_verified:
+
+        raise serializers.ValidationError(
+            "Debes activar tu cuenta"
+        )
+
+      if user.status != 1:
+
+        raise serializers.ValidationError(
+            "Usuario inactivo"
+        )
+
+      data["user"] = user
+      
+      AuditLog.objects.create(
+        user=user,
+        action="login",
+        description="Inicio de sesión"
+      )
+
+      return data
+      
+class RequestPasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    uid = serializers.UUIDField()
+    token = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)

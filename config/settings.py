@@ -146,7 +146,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-#MAIL SERVICE CONFIGURATION
+# MAIL SERVICE CONFIGURATION
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -154,7 +154,10 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'gallotechbussines@gmail.com'
 EMAIL_HOST_PASSWORD = 'jppz loov sgjl werh'
 DEFAULT_FROM_EMAIL = 'gallotechbussines@gmail.com'
-DEFAULT_FROM_NAME = 'WasteValue'
+DEFAULT_FROM_NAME = 'Help Desk Support'
+
+# Frontend URL
+FRONTEND_URL = 'http://localhost:4200'
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
