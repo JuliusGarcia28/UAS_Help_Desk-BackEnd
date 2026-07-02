@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'asset.apps.AssetConfig',
     'ticket.apps.TicketConfig',
     'ai_support',
+    'report',
     'corsheaders'
 ]
 

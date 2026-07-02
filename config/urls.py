@@ -23,4 +23,6 @@ urlpatterns = [
     path('', include('ticket.urls')),
     # Chat de soporte
     path('', include('ai_support.urls')),
+    # Reportes
+    path('', include('report.urls')),
 ]
