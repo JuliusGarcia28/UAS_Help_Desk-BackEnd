@@ -5,14 +5,30 @@ from .models import (
     TicketHistory
 )
 
-from user.models import User
+from user.models import Department, User
 
+# =========================
+# TICKET DEPARTMENT
+# =========================
+        
+class TicketDepartmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Department
+        fields = [
+            "id",
+            "name"
+        ]
 
 # =========================
 # USER SIMPLE SERIALIZER
 # =========================
 
 class TicketUserSerializer(serializers.ModelSerializer):
+
+    department = TicketDepartmentSerializer(
+        read_only=True
+    )
 
     class Meta:
         model = User
@@ -24,7 +40,8 @@ class TicketUserSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "role",
-            "status"
+            "status",
+            "department"
         ]
 
 
@@ -79,3 +96,4 @@ class TicketHistorySerializer(serializers.ModelSerializer):
         model = TicketHistory
 
         fields = "__all__"
+        
