@@ -1,25 +1,35 @@
 from pathlib import Path
-
-#import dj_database_url
 import os
-
-GEMINI_API_KEY = "AIzaSyAtszYTJURxHHnPhkRaMWDh4_UFc4ZdcVA"
+from dotenv import load_dotenv
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-v82@$mz7(*%*hp#7t4qkv3f==h962#a73a@#)3=0-+=0$4p7x7'
+# Cargar variables del archivo .env
+load_dotenv(BASE_DIR / ".env")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# ==============================
+# CONFIGURACIÓN GENERAL
+# ==============================
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1"
-]
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+DEBUG = os.getenv("DEBUG", "False") == "True"
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1"
+).split(",")
+
+# ==============================
+# CORS
+# ==============================
 
 CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOW_METHODS = [
@@ -43,11 +53,16 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
 ]
 
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200"
+    FRONTEND_URL,
 ]
 
-# Application definition
+# ==============================
+# APPLICATIONS
+# ==============================
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -55,27 +70,35 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+
     'user',
     'asset.apps.AssetConfig',
     'ticket.apps.TicketConfig',
     'ai_support',
     'report',
-    'corsheaders'
+
+    'corsheaders',
 ]
 
-# Configuración de JWT
+# ==============================
+# DJANGO REST FRAMEWORK
+# ==============================
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-    )
+    ),
 }
 
-from datetime import timedelta
+# ==============================
+# JWT
+# ==============================
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=48),
@@ -84,6 +107,10 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+# ==============================
+# MIDDLEWARE
+# ==============================
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -97,6 +124,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+# ==============================
+# TEMPLATES
+# ==============================
 
 TEMPLATES = [
     {
@@ -115,23 +146,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# ==============================
+# DATABASE
+# ==============================
 
-# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'help_desk',     # Nombre de la BD en MySQL
-        'USER': 'root',          # Usuario de MySQL
-        'PASSWORD': 'root97',    # Contraseña variable
-        'HOST': 'localhost',     # IP del servidor (usar 'localhost' si es local)
-        'PORT': '3306',          # Puerto de MySQL (por defecto es 3306)
+        'NAME': os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER"),
+        'PASSWORD': os.getenv("DB_PASSWORD"),
+        'HOST': os.getenv("DB_HOST"),
+        'PORT': os.getenv("DB_PORT"),
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # Evita warnings
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
 }
 
-# Password validation
+# ==============================
+# PASSWORD VALIDATION
+# ==============================
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -147,21 +183,25 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# MAIL SERVICE CONFIGURATION
+# ==============================
+# EMAIL
+# ==============================
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'gallotechbussines@gmail.com'
-EMAIL_HOST_PASSWORD = 'jppz loov sgjl werh'
-DEFAULT_FROM_EMAIL = 'gallotechbussines@gmail.com'
-DEFAULT_FROM_NAME = 'Help Desk Support'
 
-# Frontend URL
-FRONTEND_URL = 'http://localhost:4200'
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
 
-# Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_NAME = "Help Desk Support"
+
+# ==============================
+# INTERNATIONALIZATION
+# ==============================
 
 LANGUAGE_CODE = 'en-us'
 
@@ -171,13 +211,20 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
+# ==============================
+# STATIC FILES
+# ==============================
 
 STATIC_URL = 'static/'
 
-# Default primary key field type
+# ==============================
+# DEFAULT PRIMARY KEY
+# ==============================
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==============================
+# CUSTOM USER MODEL
+# ==============================
 
 AUTH_USER_MODEL = 'user.User'
