@@ -28,11 +28,32 @@ FRONTEND_URL = os.getenv("FRONTEND_URL")
 #==========================
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
-ALLOWED_METHODS = "GET,POST,PUT,PATCH,DELETE,OPTIONS".split(",")
+CORS_ALLOWED_ORIGINS = [
+    "https://uas-help-desk.netlify.app",
+    "http://localhost:4200",
+]
 
-CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "localhost,127.0.0.1").split(",")
+CORS_ALLOW_CREDENTIALS = True
 
-CORS_HEADER_ALLOW_ALL = "CORS_HEADER_ALLOW_ALL", "False" == "True"
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "origin",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
 # =========================
 # APPS
 # =========================
