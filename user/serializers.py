@@ -96,11 +96,30 @@ class UserSerializer(serializers.ModelSerializer):
         f"{settings.FRONTEND_URL}/activate-account"
         f"?uid={user.id}&token={token}"
       )
+      
+      # Prubas de configuración de correo
+      print("HOST:", settings.EMAIL_HOST)
+      print("PORT:", settings.EMAIL_PORT)
+      print("USER:", settings.EMAIL_HOST_USER)
+      print("TLS:", settings.EMAIL_USE_TLS)
+      
+      try:
+        send_activation_email(
+          user=user,
+          activation_url=activation_url
+        )
+      except Exception as e:
+       print("====================================")
+       print("ERROR ENVIANDO CORREO")
+       print("TIPO:", type(e).__name__)
+       print("ERROR:", str(e))
+       print("====================================")
 
-      send_activation_email(
-       user=user,
-       activation_url=activation_url
-      )
+       user.delete()
+
+       raise serializers.ValidationError(
+        "Error al enviar el correo de activación"
+       )
       
       AuditLog.objects.create(
         user=user,
