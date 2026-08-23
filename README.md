@@ -64,6 +64,7 @@ El servicio permite procesar consultas de soporte y generar respuestas asistidas
 
 Flujo simplificado:
 
+```text
 Usuario
    │
    ▼
@@ -84,6 +85,7 @@ Django REST API
                     Cliente
 
 La integración con Gemini se mantiene encapsulada dentro del backend para evitar exponer credenciales o lógica sensible directamente en el cliente.
+```
 
 ---
 
@@ -91,6 +93,7 @@ La integración con Gemini se mantiene encapsulada dentro del backend para evita
 
 La solución utiliza una arquitectura basada en API REST:
 
+```text
     [Angular Frontend Frontend] - [Electron Desktop App] ────► [Windows Service] 
                             │                                          │
                             ├──────────────────────────────────────────│                                      
@@ -102,6 +105,7 @@ La solución utiliza una arquitectura basada en API REST:
                             │
                             ▼ 
                  [PostgreSQL / Supabase] 
+```
 
 ### Componentes
 
@@ -139,6 +143,7 @@ La solución utiliza una arquitectura basada en API REST:
 
 > Esta es la estructura del proyecto.
 
+```text
 backend/
 │
 ├── config/
@@ -210,6 +215,7 @@ backend/
 ├── .gitattributes
 ├── .gitignore
 └── README.md
+```
 
 La aplicación está organizada por dominios funcionales para facilitar el mantenimiento y evolución del sistema.
 
@@ -312,8 +318,8 @@ GET	    /reports/avg-resolution/	   Obtiene el tiempo promedio de resolución
 
 ### Ejemplo de flujo para creación de ticket
 
+```text
 POST /api/tickets/
-
         │
         ▼
 Django REST Framework
@@ -325,7 +331,7 @@ Django REST Framework
                 │
                 ▼
           PostgreSQL
-
+```
 ---
 
 ## Autenticación y autorización
@@ -352,6 +358,7 @@ El backend utiliza la API de **Google Gemini** para proporcionar funcionalidades
 
 La integración sigue un flujo similar a:
 
+```text
 Frontend
    │
    │ Consulta del usuario
@@ -368,6 +375,7 @@ Django API
    │
    ▼
 Frontend
+```
 
 Las credenciales de la API se mantienen mediante variables de entorno y no forman parte del código fuente.
 
@@ -544,7 +552,7 @@ Entre las principales consideraciones de seguridad se encuentran:
 
 ## Autor
 
-**Julian Javier Garcia Alvarez**
+**[Julian Javier Garcia Alvarez]**
 
 Desarrollador de software enfocado en desarrollo web, APIs, automatización e integración de soluciones.
 
