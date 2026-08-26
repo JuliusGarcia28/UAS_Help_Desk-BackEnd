@@ -233,88 +233,100 @@ El backend expone una API REST consumida principalmente por:
 
 Autenticación
 
+```text
 Método	  Endpoint	                        Descripción	 
 
-POST	  /token	                        Obtiene un par de tokens
-POST	  /token/refresh/	                Renueva el access token
-POST	  /auth/login/	                    Inicio de sesión
-POST	  /auth/logout/	                    Cierre de sesión e invalidación del token
-POST	  /auth/refresh/	                Renueva el token de acceso
-GET	      /auth/user/	                    Obtiene información del usuario autenticado
-POST	  /auth/request-password-reset/	    Solicita recuperación de contraseña
-POST	  /auth/reset-password/	            Restablece la contraseña
-POST	  /auth/change-password/	        Cambia la contraseña del usuario
-POST	  /auth/activate-account/	        Activa una cuenta de usuario
+POST	     /token	                           Obtiene un par de tokens
+POST	     /token/refresh/	                  Renueva el access token
+POST	     /auth/login/	                     Inicio de sesión
+POST	     /auth/logout/	                  Cierre de sesión e invalidación del token
+POST	     /auth/refresh/	                  Renueva el token de acceso
+GET	     /auth/user/	                     Obtiene información del usuario autenticado
+POST	     /auth/request-password-reset/	   Solicita recuperación de contraseña
+POST	     /auth/reset-password/	            Restablece la contraseña
+POST	     /auth/change-password/	         Cambia la contraseña del usuario
+POST	     /auth/activate-account/	         Activa una cuenta de usuario
+```
 
 -- Usuarios y departamentos
 
 Estas rutas son generadas mediante DefaultRouter.
 
-Método	 Endpoint	          Descripción
+```text
+Método	  Endpoint	           Descripción
 
-GET	     /users/	          Lista usuarios
-POST	 /users/	          Crea un usuario
-GET	     /users/{id}/	      Obtiene un usuario
-PUT	     /users/{id}/	      Actualiza un usuario
-PATCH	 /users/{id}/	      Actualiza parcialmente un usuario
-DELETE	 /users/{id}/	      Elimina un usuario
-GET	     /departments/	      Lista departamentos
-POST	 /departments/	      Crea un departamento
+GET	     /users/	           Lista usuarios
+POST	     /users/	           Crea un usuario
+GET	     /users/{id}/	        Obtiene un usuario
+PUT	     /users/{id}/	        Actualiza un usuario
+PATCH	     /users/{id}/	        Actualiza parcialmente un usuario
+DELETE	  /users/{id}/	        Elimina un usuario
+GET	     /departments/	     Lista departamentos
+POST	     /departments/	     Crea un departamento
 GET	     /departments/{id}/	  Obtiene un departamento
 PUT	     /departments/{id}/	  Actualiza un departamento
-PATCH	 /departments/{id}/	  Actualiza parcialmente un departamento
-DELETE	 /departments/{id}/	  Elimina un departamento
+PATCH	     /departments/{id}/	  Actualiza parcialmente un departamento
+DELETE	  /departments/{id}/	  Elimina un departamento
+```
 
 -- Inventario / Assets
 
 El AssetViewSet genera automáticamente las operaciones CRUD mediante DefaultRouter.
 
-Método	      Endpoint	                     Descripción
+```text
+Método	      Endpoint	                        Descripción
 
 GET	        /inventory/	                     Lista los activos registrados
-POST	    /inventory/	                     Registra un nuevo activo
-GET	        /inventory/{id}/	             Obtiene el detalle de un activo
-PUT	        /inventory/{id}/	             Actualiza un activo
-PATCH	    /inventory/{id}/	             Actualiza parcialmente un activo
-DELETE	    /inventory/{id}/	             Elimina un activo
-POST	    /assets/agent/register/	         Registra un activo mediante el agente recolector
-PUT/PATCH	/assets/agent/update/{serial}/	 Actualiza información de un activo mediante su número de serie
+POST	        /inventory/	                     Registra un nuevo activo
+GET	        /inventory/{id}/	               Obtiene el detalle de un activo
+PUT	        /inventory/{id}/	               Actualiza un activo
+PATCH	        /inventory/{id}/	               Actualiza parcialmente un activo
+DELETE	     /inventory/{id}/	               Elimina un activo
+POST	        /assets/agent/register/	         Registra un activo mediante el agente recolector
+PUT/PATCH	  /assets/agent/update/{serial}/	   Actualiza información de un activo mediante su número de serie
 GET	        /assets/agent/{serial}/	         Consulta un activo mediante su número de serie
+```
 
 -- Help Desk / Tickets
 
 El TicketViewSet genera las operaciones CRUD:
 
-Método	Endpoint	    Descripción
+```text
+Método	 Endpoint	       Descripción
 
-GET	    /tickets/	    Lista tickets
-POST	/tickets/	    Crea un ticket
-GET	    /tickets/{id}/	Obtiene el detalle de un ticket
-PUT	    /tickets/{id}/	Actualiza un ticket
-PATCH	/tickets/{id}/	Actualiza parcialmente un ticket
-DELETE	/tickets/{id}/	Elimina un ticket
+GET	    /tickets/	       Lista tickets
+POST	    /tickets/	       Crea un ticket
+GET	    /tickets/{id}/	 Obtiene el detalle de un ticket
+PUT	    /tickets/{id}/	 Actualiza un ticket
+PATCH	    /tickets/{id}/	 Actualiza parcialmente un ticket
+DELETE	 /tickets/{id}/	 Elimina un ticket
+```
 
 -- Asistente de soporte con IA
 
-Método	Endpoint	                        Descripción
+```text
+Método	 Endpoint	                           Descripción
 
-POST	/support-ai/chat/	                Envía un mensaje al asistente de IA
-GET	    /support-ai/sessions/	            Lista las sesiones de soporte
-GET	    /support-ai/sessions/{id}/	        Obtiene el detalle de una sesión
-POST	/support-ai/{session_id}/escalate/	Escala una sesión de IA a soporte humano
-POST	/support-ai/{session_id}/solved/	Marca una sesión como resuelta
+POST	    /support-ai/chat/	                  Envía un mensaje al asistente de IA
+GET	    /support-ai/sessions/	               Lista las sesiones de soporte
+GET	    /support-ai/sessions/{id}/	         Obtiene el detalle de una sesión
+POST	    /support-ai/{session_id}/escalate/	   Escala una sesión de IA a soporte humano
+POST	    /support-ai/{session_id}/solved/	   Marca una sesión como resuelta
+```
 
 -- Reportes y Dashboard
 
-Método	Endpoint	                   Descripción
-GET	    /reports/dashboard/	           Obtiene información general para el dashboard
-GET	    /reports/tickets-status/	   Reporte de tickets agrupados por estado
-GET	    /reports/tickets-category/	   Reporte de tickets agrupados por categoría
-GET	    /reports/tickets-priority/	   Reporte de tickets agrupados por prioridad
-GET	    /reports/tickets-technician/   Reporte de tickets por técnico
-GET	    /reports/tickets-department/   Reporte de tickets por departamento
-GET	    /reports/tickets-month/	       Reporte de tickets por mes
-GET	    /reports/avg-resolution/	   Obtiene el tiempo promedio de resolución
+```text
+Método	   Endpoint	                       Descripción
+GET	      /reports/dashboard/	           Obtiene información general para el dashboard
+GET	      /reports/tickets-status/	     Reporte de tickets agrupados por estado
+GET	      /reports/tickets-category/	     Reporte de tickets agrupados por categoría
+GET	      /reports/tickets-priority/	     Reporte de tickets agrupados por prioridad
+GET	      /reports/tickets-technician/    Reporte de tickets por técnico
+GET	      /reports/tickets-department/    Reporte de tickets por departamento
+GET	      /reports/tickets-month/	        Reporte de tickets por mes
+GET	      /reports/avg-resolution/	     Obtiene el tiempo promedio de resolución
+```
 
 ### Ejemplo de flujo para creación de ticket
 
