@@ -144,7 +144,8 @@ class AISupportEscalateView(APIView):
 
         return Response({
           "message": "Ticket generado",
-          "ticket_id": ticket.id
+          "ticket_id": ticket.id,
+          "code": ticket.code
         })
 
 

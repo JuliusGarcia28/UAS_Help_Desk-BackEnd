@@ -97,12 +97,6 @@ class UserSerializer(serializers.ModelSerializer):
         f"?uid={user.id}&token={token}"
       )
       
-      # Prubas de configuración de correo
-      print("HOST:", settings.EMAIL_HOST)
-      print("PORT:", settings.EMAIL_PORT)
-      print("USER:", settings.EMAIL_HOST_USER)
-      print("TLS:", settings.EMAIL_USE_TLS)
-      
       try:
         send_activation_email(
           user=user,
