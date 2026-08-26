@@ -352,6 +352,12 @@ La infraestructura de datos se gestiona mediante **Supabase**.
 
 ---
 
+## Diagrama ER
+
+![Diagrama ER](docs/Help_Desk_ER.png)
+
+---
+
 ## Integración con Gemini
 
 El backend utiliza la API de **Google Gemini** para proporcionar funcionalidades de asistencia inteligente.
