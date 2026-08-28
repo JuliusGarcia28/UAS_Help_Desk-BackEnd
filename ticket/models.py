@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django.db import models
 from django.conf import settings
 from asset.models import Asset
@@ -114,6 +116,79 @@ class Ticket(models.Model):
     )
 
     def save(self, *args, **kwargs):
+        creating = self._state.adding
+        
+        # ========================================== 
+        # DETECTAR SI EL TICKET SE ESTÁ RESOLVIENDO 
+        # ==========================================
+        
+        if not creating:
+            try:
+                old_ticket = Ticket.objects.get(pk=self.pk)
+                
+                # Si antes NO estaba resuelto 
+                # y ahora pasa a RESUELTO
+                
+                if (
+                    old_ticket.status != 3
+                    and self.status == 3
+                ):
+                    self.finished_at = timezone.now()
+                    
+            except Ticket.DoesNotExist:
+                pass
+            
+        # ========================================== 
+        # SI SE CREA YA COMO RESUELTO 
+        # ==========================================
+        
+        if creating and self.status == 3:
+            self.finished_at = timezone.now()
+            
+        # ========================================== 
+        # GUARDAR PRIMERO 
+        # ==========================================
+        
+        super().save(*args, **kwargs)
+        
+        # ========================================== 
+        # CALCULAR TIEMPO DE RESOLUCIÓN 
+        # ==========================================
+        
+        if self.status == 3 and self.finished_at:
+            
+            duration = self.finished_at - self.created_at
+                
+            self.resolution_time = round(
+                duration.total_seconds() / 3600, 2
+            )
+             
+            Ticket.objects.filter( 
+                pk=self.pk
+            ).update( 
+                resolution_time=self.resolution_time 
+            )   
+                
+        # ========================================== 
+        # GENERAR CÓDIGO DEL TICKET 
+        # ==========================================
+        
+        if creating and not self.code:
+            
+            ticket_number = Ticket.objects.count()
+            
+            self.code = f"TK-{ticket_number:03d}"
+            
+            Ticket.objects.filter(
+                pk=self.pk
+            ).update( 
+                code=self.code 
+            )
+    def __str__(self):
+        
+        return self.code or str(self.id)
+
+    """def save(self, *args, **kwargs):
 
         creating = self._state.adding
 
@@ -133,7 +208,7 @@ class Ticket(models.Model):
 
     def __str__(self):
 
-        return self.code or str(self.id)
+        return self.code or str(self.id)"""
     
 
 class TicketHistory(models.Model):

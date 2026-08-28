@@ -59,6 +59,14 @@ class TicketViewSet(viewsets.ModelViewSet):
         serializer.save(
             cliente=self.request.user
         )
+        
+    def perform_update(self, serializer):
+
+        # Guardamos temporalmente el usuario que realizó
+
+        serializer.instance._changed_by = self.request.user
+
+        serializer.save()
 
     @action(detail=True, methods=["get"])
     def history(self, request, pk=None):

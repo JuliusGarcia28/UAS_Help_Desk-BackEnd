@@ -1,7 +1,9 @@
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+
 from .models import Ticket
 from .utils import create_ticket_snapshot
+
 
 @receiver(pre_save, sender=Ticket)
 def save_ticket_history(sender, instance, **kwargs):
@@ -14,14 +16,29 @@ def save_ticket_history(sender, instance, **kwargs):
     except Ticket.DoesNotExist:
         return
 
-    fields_to_track = ["status", "priority"]
+    fields_to_track = [
+        "status",
+        "priority",
+    ]
 
     changed = False
 
     for field in fields_to_track:
+
         if getattr(old_ticket, field) != getattr(instance, field):
             changed = True
             break
 
     if changed:
-        create_ticket_snapshot(old_ticket, reason="update")
+
+        user = getattr(
+            instance,
+            "_changed_by",
+            None
+        )
+
+        create_ticket_snapshot(
+            old_ticket,
+            user=user,
+            reason="update"
+        )
