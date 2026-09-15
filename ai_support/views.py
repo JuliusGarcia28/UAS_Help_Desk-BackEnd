@@ -32,6 +32,14 @@ class AISupportChatView(APIView):
                 {"error": "Mensaje requerido"},
                 status=400
             )
+            
+        problem = problem.strip()
+        
+        if len(problem) > 4000:
+            return Response(
+                {"error": "El mensaje es demasiado largo"},
+                status=400
+            )
 
         asset = Asset.objects.filter(
             id=asset_id,

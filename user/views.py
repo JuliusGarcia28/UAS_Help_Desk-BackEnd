@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.contrib.auth.password_validation import validate_password
@@ -18,7 +19,7 @@ DepartmentSerializer,
 ChangePasswordSerializer
 )
 
-class LoginView(APIView):
+"""class LoginView(APIView):
   permission_classes = [AllowAny]
 
   def post(self, request):
@@ -40,36 +41,130 @@ class LoginView(APIView):
     return Response(
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST
-    )
+    )"""
+    
+class LoginView(APIView):
+    permission_classes = [AllowAny]
 
-class Logout(APIView):
-  permission_classes = [IsAuthenticated]
+    def post(self, request):
 
-  def post(self, request):
+        serializer = LoginSerializer(data=request.data)
 
-    try:
+        serializer.is_valid(raise_exception=True)
 
-        refresh_token = request.data.get("refresh")
+        user = serializer.validated_data["user"]
+
+        refresh = RefreshToken.for_user(user)
+
+        response = Response({
+            "user": UserSerializer(user).data,
+            "access": str(refresh.access_token),
+        })
+
+        response.set_cookie(
+            key=settings.REFRESH_COOKIE_NAME,
+            value=str(refresh),
+            max_age=7 * 24 * 60 * 60,
+            httponly=settings.REFRESH_COOKIE_HTTPONLY,
+            secure=settings.REFRESH_COOKIE_SECURE,
+            samesite=settings.REFRESH_COOKIE_SAMESITE,
+            path="/auth/",
+        )
+
+        return response
+    
+class RefreshTokenView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+
+        refresh_token = request.COOKIES.get(
+            settings.REFRESH_COOKIE_NAME
+        )
 
         if not refresh_token:
             return Response(
-                {"error": "Refresh token requerido"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Sesión no válida"},
+                status=401
             )
 
-        token = RefreshToken(refresh_token)
-        token.blacklist()
+        try:
 
-        return Response(
-            {"message": "Logout exitoso"},
-            status=status.HTTP_200_OK
+            refresh = RefreshToken(refresh_token)
+
+            access_token = refresh.access_token
+
+            response = Response({
+                "access": str(access_token)
+            })
+
+            if settings.SIMPLE_JWT.get(
+                "ROTATE_REFRESH_TOKENS"
+            ):
+
+                refresh.set_jti()
+                refresh.set_exp()
+
+                response.set_cookie(
+                    key=settings.REFRESH_COOKIE_NAME,
+                    value=str(refresh),
+                    max_age=7 * 24 * 60 * 60,
+                    httponly=True,
+                    secure=settings.REFRESH_COOKIE_SECURE,
+                    samesite=settings.REFRESH_COOKIE_SAMESITE,
+                    path="/auth/",
+                )
+
+            return response
+
+        except TokenError:
+
+            response = Response(
+                {"error": "Sesión expirada"},
+                status=401
+            )
+
+            response.delete_cookie(
+                settings.REFRESH_COOKIE_NAME,
+                path="/auth/"
+            )
+
+            return response
+
+class Logout(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        refresh_token = request.COOKIES.get(
+            settings.REFRESH_COOKIE_NAME
         )
 
-    except Exception:
-        return Response(
-            {"error": "Token inválido"},
-            status=status.HTTP_400_BAD_REQUEST
+        response = Response({
+            "message": "Logout exitoso"
+        })
+
+        if refresh_token:
+
+            try:
+
+                token = RefreshToken(
+                    refresh_token
+                )
+
+                token.blacklist()
+
+            except Exception:
+                pass
+
+        response.delete_cookie(
+            settings.REFRESH_COOKIE_NAME,
+            path="/auth/"
         )
+
+        return response
 
 class RequestPasswordReset(APIView):
   permission_classes = [AllowAny]

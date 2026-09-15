@@ -75,6 +75,29 @@ def generate_ai_response(user, asset, problem):
     Access
     Other
     """
+    
+    priority = data.get("priority", 2)
+
+    try:
+        priority = int(priority)
+    except (TypeError, ValueError):
+        priority = 2
+
+    priority = max(1, min(priority, 4))
+
+    allowed_categories = {
+        "Hardware",
+        "Software",
+        "Network",
+        "Access",
+        "Other",
+    }
+
+    category = data.get("category", "Other")
+
+    if category not in allowed_categories:
+        category = "Other"
+
 
     try:
 

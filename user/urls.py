@@ -10,10 +10,11 @@ from .views import (
     RequestPasswordReset,
     ResetPassword,
     ChangePassword,
-    ActivateAccount
+    ActivateAccount,
+    RefreshTokenView
 )
 
-from rest_framework_simplejwt.views import TokenRefreshView
+#from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
 
@@ -31,7 +32,7 @@ urlpatterns = [
 
     path(
         'auth/refresh/',
-        TokenRefreshView.as_view(),
+        RefreshTokenView.as_view(),
         name='token_refresh'
     ),
 

@@ -1,17 +1,51 @@
 from rest_framework import viewsets, status
-from rest_framework.views import APIView
+from rest_framework.views import APIView, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 
+from .permissions import HasAgentAPIKey
 from .models import Asset, AssetHistory
 from .serializers import AssetSerializer, AgentAssetSerializer
+
+from user.permissions import IsAdmin, IsTechnician
     
+# ViewSet de CRUD Completo para assets
 class AssetViewSet(viewsets.ModelViewSet):
 
     queryset = Asset.objects.all().order_by("-created_at")
     serializer_class = AssetSerializer
     permission_classes = [IsAuthenticated]
+    
+    def check_permissions(self, request):
+        
+        super().check_permissions(request)
+        
+        role = request.user.role
+        
+        if request.method == "GET":
+            if role not in ["admin", "technician"]:
+                raise PermissionDenied(
+                    "No tienes permiso para consultar el inventario."
+                )
+        
+        elif request.method == "POST":
+            if role != "admin":
+                raise PermissionDenied(
+                    "Solo un administrador puede registrar equipos."
+                )
+
+        elif request.method in ["PUT", "PATCH"]:
+            if role not in ["admin", "technician"]:
+                raise PermissionDenied(
+                    "No tienes permiso para modificar equipos."
+                )
+
+        elif request.method == "DELETE":
+            if role != "admin":
+                raise PermissionDenied(
+                    "Solo un administrador puede eliminar equipos."
+                )
 
     @action(detail=True, methods=["get"])
     def history(self, request, pk=None):
@@ -36,7 +70,10 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         return Response(data)
 
+# Endpoint para ver detalles de asset para agente
 class AgentAssetDetail(APIView):
+    
+    permission_classes = [HasAgentAPIKey]
 
     def get(self, request, serial):
 
@@ -58,9 +95,10 @@ class AgentAssetDetail(APIView):
             status=status.HTTP_200_OK
         )
     
-
-
+# Enpoint para registrar asset desde agente
 class AgentRegisterAsset(APIView):
+
+    permission_classes = [HasAgentAPIKey]
 
     def post(self, request):
 
@@ -75,8 +113,11 @@ class AgentRegisterAsset(APIView):
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    
+# Endpoint para actualizar asset desde agente
 class AgentUpdateAsset(APIView):
+    
+    permission_classes = [HasAgentAPIKey]
+    
     def patch(self, request, serial):
 
         asset = Asset.objects.filter(serial_number=serial).first()

@@ -12,6 +12,9 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY no está configurada")
+
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv(
@@ -148,18 +151,31 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',    
+    ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=48),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     "AUTH_HEADER_TYPES": ("Bearer",),
+    'UPDATE_LAST_LOGIN': False,
 }
+
+# COOKIES CONFIG para produccion
+REFRESH_COOKIE_NAME = "refresh_token"
+
+REFRESH_COOKIE_SECURE = not DEBUG
+REFRESH_COOKIE_HTTPONLY = True
+REFRESH_COOKIE_SAMESITE = "None" if not DEBUG else "Lax"
+SameSite=None
+Secure=True
 
 # =========================
 # CORS
@@ -185,6 +201,31 @@ CORS_ALLOWED_ORIGINS = [
     FRONTEND_URL,
 ] if FRONTEND_URL else []
 
+#==========================
+# SECURITY
+#==========================
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+#SESSION_COOKIE_SECURE = not DEBUG
+#CSRF_COOKIE_SECURE = not DEBUG
+
+SECURE_BROWSER_XSS_FILTER = True
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+X_FRAME_OPTIONS = "DENY"
+
+SECURE_REFERRER_POLICY = "same-origin"
+
+# Solo para produccion
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+
 # =========================
 # EMAIL
 # =========================
@@ -203,6 +244,8 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+
+AGENT_API_KEY = os.getenv("AGENT_API_KEY")
 
 # =========================
 # STATIC

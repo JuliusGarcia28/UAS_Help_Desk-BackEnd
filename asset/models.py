@@ -72,7 +72,12 @@ class AssetHistory(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    asset_id = models.UUIDField()  # referencia del asset original
+    asset = models.ForeignKey(
+        Asset, on_delete=models.CASCADE,
+        null=False,
+        related_name='history',
+        verbose_name="Equipo"
+    )
 
     # Snapshot del asset
     hostname = models.CharField(max_length=100)
