@@ -8,7 +8,7 @@ from .permissions import HasAgentAPIKey
 from .models import Asset, AssetHistory
 from .serializers import AssetSerializer, AgentAssetSerializer
 
-from user.permissions import IsAdmin, IsTechnician
+from user.permissions import IsAdmin, IsTechnician, IsClient
     
 # ViewSet de CRUD Completo para assets
 class AssetViewSet(viewsets.ModelViewSet):
@@ -17,14 +17,25 @@ class AssetViewSet(viewsets.ModelViewSet):
     serializer_class = AssetSerializer
     permission_classes = [IsAuthenticated]
     
+    def get_queryset(self):
+    
+            queryset = Asset.objects.all().order_by("-created_at")
+    
+            if self.request.user.role == "client":
+                queryset = queryset.filter(
+                    responsible=self.request.user
+                )
+    
+            return queryset
+    
     def check_permissions(self, request):
         
         super().check_permissions(request)
         
         role = request.user.role
-        
+                
         if request.method == "GET":
-            if role not in ["admin", "technician"]:
+            if role not in ["admin", "technician", "client"]:
                 raise PermissionDenied(
                     "No tienes permiso para consultar el inventario."
                 )
@@ -40,12 +51,12 @@ class AssetViewSet(viewsets.ModelViewSet):
                 raise PermissionDenied(
                     "No tienes permiso para modificar equipos."
                 )
-
-        elif request.method == "DELETE":
-            if role != "admin":
-                raise PermissionDenied(
-                    "Solo un administrador puede eliminar equipos."
-                )
+                
+    # Prohibe la eliminación de assets a través de la API
+    def destroy(self, request, *args, **kwargs):
+        raise PermissionDenied(
+            "La eliminación de assets no está permitida."
+        )
 
     @action(detail=True, methods=["get"])
     def history(self, request, pk=None):

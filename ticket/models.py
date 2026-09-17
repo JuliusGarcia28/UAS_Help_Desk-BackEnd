@@ -188,29 +188,6 @@ class Ticket(models.Model):
         
         return self.code or str(self.id)
 
-    """def save(self, *args, **kwargs):
-
-        creating = self._state.adding
-
-        super().save(*args, **kwargs)
-
-        if creating and not self.code:
-
-            ticket_number = Ticket.objects.count()
-
-            self.code = f"TK-{ticket_number:03d}"
-
-            Ticket.objects.filter(
-                pk=self.pk
-            ).update(
-                code=self.code
-            )
-
-    def __str__(self):
-
-        return self.code or str(self.id)"""
-    
-
 class TicketHistory(models.Model):
 
     id = models.UUIDField(

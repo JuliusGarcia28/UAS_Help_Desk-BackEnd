@@ -1,24 +1,20 @@
 from django.db.models import Count, Avg
 from django.db.models.functions import TruncMonth
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework.views import APIView, PermissionDenied
 from rest_framework.permissions import IsAuthenticated
-
-from user.permissions import IsAdmin
+from rest_framework.response import Response
 
 from ticket.models import Ticket
 from asset.models import Asset
 from user.models import User, Department
 from ai_support.models import SupportSessionAI
 
+from user.permissions import IsAdmin, IsTechnician, IsClient
 
 class DashboardReportView(APIView):
 
-    permission_classes = [
-        IsAuthenticated,
-        IsAdmin
-    ]
+    permission_classes = [IsAuthenticated, IsAdmin]
 
     def get(self, request):
 

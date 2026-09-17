@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,18 +14,19 @@ from .serializers import (
     TicketHistorySerializer
 )
 
+from user.permissions import IsAdmin, IsTechnician, IsClient
+
 
 class TicketViewSet(viewsets.ModelViewSet):
 
     serializer_class = TicketSerializer
-
     permission_classes = [IsAuthenticated]
-
-    queryset = Ticket.objects.select_related(
-        "cliente",
-        "technician",
-        "asset"
-    )
+                
+    # Prohibe la eliminación de tickets a través de la API
+    def destroy(self, request, *args, **kwargs):
+        raise PermissionDenied(
+            "La eliminación de tickets no está permitida."
+        )
 
     def get_queryset(self):
 

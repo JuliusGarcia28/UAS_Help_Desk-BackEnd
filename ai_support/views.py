@@ -1,7 +1,8 @@
 from httpx import request
-from rest_framework.views import APIView
+from rest_framework.views import APIView, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from user.permissions import IsAdmin, IsTechnician, IsClient
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 from .services import generate_ai_response
@@ -26,14 +27,20 @@ class AISupportChatView(APIView):
 
         problem = request.data.get("message")
         asset_id = request.data.get("asset_id")
+        
+        if not isinstance(problem, str):
+            return Response(
+                {"error": "El mensaje debe ser texto"},
+                status=400
+            )
+            
+        problem = problem.strip()
 
         if not problem:
             return Response(
                 {"error": "Mensaje requerido"},
                 status=400
             )
-            
-        problem = problem.strip()
         
         if len(problem) > 4000:
             return Response(
@@ -119,7 +126,7 @@ class AISupportSessionDetailView(
 class AISupportEscalateView(APIView):
 
     permission_classes = [IsAuthenticated]
-
+            
     def post(self, request, session_id):
 
         session = SupportSessionAI.objects.filter(

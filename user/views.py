@@ -1,4 +1,4 @@
-from rest_framework.views import APIView
+from rest_framework.views import APIView, PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -18,30 +18,6 @@ UserSerializer,
 DepartmentSerializer,
 ChangePasswordSerializer
 )
-
-"""class LoginView(APIView):
-  permission_classes = [AllowAny]
-
-  def post(self, request):
-
-    serializer = LoginSerializer(data=request.data)
-
-    if serializer.is_valid():
-
-        user = serializer.validated_data["user"]
-
-        refresh = RefreshToken.for_user(user)
-
-        return Response({
-            "user": UserSerializer(user).data,
-            "access": str(refresh.access_token),
-            "refresh": str(refresh)
-        })
-
-    return Response(
-        serializer.errors,
-        status=status.HTTP_400_BAD_REQUEST
-    )"""
     
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -346,8 +322,72 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsAdmin]
+    
+    def check_permissions(self, request):
+        super().check_permissions(request)
+
+        role = request.user.role
+
+        if request.method == "GET":
+
+            if role not in ["admin"]:
+                raise PermissionDenied(
+                    "No tienes permiso para consultar todos los usuarios."
+                )
+                
+        elif request.method == "POST":
+
+            if role not in ["admin"]:
+                raise PermissionDenied(
+                    "No tienes permiso para registrar usuarios."
+                )
+        
+        elif request.method in ["PUT", "PATCH"]:
+
+            if role not in ["admin"]:
+                raise PermissionDenied(
+                    "No tienes permiso para modificar usuarios."
+                )
+            
+    # Prohibe la eliminación de usuarios a través de la API
+    def destroy(self, request, *args, **kwargs):
+            raise PermissionDenied(
+                "La eliminación de usuarios no está permitida."
+            )
 
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
     permission_classes = [IsAuthenticated, IsAdmin]
+    
+    def check_permissions(self, request):
+        super().check_permissions(request)
+
+        role = request.user.role
+
+        if request.method == "GET":
+
+            if role not in ["admin"]:
+                raise PermissionDenied(
+                    "No tienes permiso para consultar los departamentos."
+                )
+                
+        elif request.method == "POST":
+
+            if role not in ["admin"]:
+                raise PermissionDenied(
+                    "No tienes permiso para registrar departamentos."
+                )
+        
+        elif request.method in ["PUT", "PATCH"]:
+
+            if role not in ["admin"]:
+                raise PermissionDenied(
+                    "No tienes permiso para modificar departamentos."
+                )
+                
+    # Prohibe la eliminación de departamentos a través de la API
+    def destroy(self, request, *args, **kwargs):
+        raise PermissionDenied(
+            "La eliminación de departamentos no está permitida."
+        )
